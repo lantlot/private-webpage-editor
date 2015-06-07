@@ -292,7 +292,10 @@ INT_PTR savef(HWND hDlg)//文件保存模块
 INT_PTR Loadf(HWND hDlg)
 {
 	LPSTR Num,OutStr,MainStr,TitleStr;
+	int Count=0,C2=0;
+	DWORD ERR;
 	Num=(LPSTR)malloc(20*sizeof(CHAR));
+	HANDLE hFile=(HANDLE)malloc(sizeof(HANDLE));
 	if (GetDlgItemTextA(hDlg,IDC_Num,Num,4))
 	{
 		strcat_s(Num,20,".htm");
@@ -314,8 +317,21 @@ INT_PTR Loadf(HWND hDlg)
 			OutStr=(LPSTR)malloc(MAX_IN_STR*sizeof(CHAR));
 			MainStr=(LPSTR)malloc(MAX_IN_STR*sizeof(CHAR));
 			TitleStr=(LPSTR)malloc(MAX_IN_STR*sizeof(CHAR));
-			ReadFile(Num,OutStr,MAX_IN_STR,NumBuff,NULL);
-
+			LPSTR Start;
+			hFile=CreateFileA(Num,GENERIC_READ,0,NULL,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,NULL);
+			ReadFile(hFile,OutStr,MAX_IN_STR,NumBuff,NULL);
+			ERR=GetLastError();
+			Start=strstr(OutStr,"<TITLE>");
+			Count=7,C2=0;
+			while(Start[Count]!='<'){
+				TitleStr[C2]=Start[Count];
+				Count++,C2++;
+			}
+			TitleStr[C2+1]=0;
+			HWND hElg;
+			hElg=GetDlgItem(hDlg,IDC_TITLE);
+			SendMessage(hElg, WM_SETTEXT, NULL, (LPARAM)TitleStr);
+			return 0;
 		}
 
 
