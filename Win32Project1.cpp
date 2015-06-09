@@ -316,8 +316,9 @@ INT_PTR Loadf(HWND hDlg)
 			LPDWORD NumBuff=(LPDWORD)malloc(sizeof(DWORD));
 			OutStr=(LPSTR)malloc(MAX_IN_STR*sizeof(CHAR));
 			MainStr=(LPSTR)malloc(MAX_IN_STR*sizeof(CHAR));
-			TitleStr=(LPSTR)malloc(MAX_IN_STR*sizeof(CHAR));
+			//=(LPSTR)malloc(MAX_IN_STR*sizeof(CHAR));
 			LPSTR Start;
+			WCHAR* TitleStr=(WCHAR*)malloc(MAX_IN_STR*sizeof(WCHAR));
 			hFile=CreateFileA(Num,GENERIC_READ,0,NULL,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,NULL);
 			ReadFile(hFile,OutStr,MAX_IN_STR,NumBuff,NULL);
 			ERR=GetLastError();
@@ -327,7 +328,8 @@ INT_PTR Loadf(HWND hDlg)
 				TitleStr[C2]=Start[Count];
 				Count++,C2++;
 			}
-			TitleStr[C2+1]=0;
+			TitleStr[C2]='\0';
+			TitleStr[C2+1]='\0';
 			HWND hElg;
 			hElg=GetDlgItem(hDlg,IDC_TITLE);
 			SendMessage(hElg, WM_SETTEXT, NULL, (LPARAM)TitleStr);
