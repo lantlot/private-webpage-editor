@@ -291,7 +291,8 @@ INT_PTR savef(HWND hDlg)//文件保存模块
 }
 INT_PTR Loadf(HWND hDlg)
 {
-	LPSTR Num,OutStr,MainStr,TitleStr;
+	WCHAR *OutStr,*MainStr,*TitleStr;
+	LPSTR Num;
 	int Count=0,C2=0;
 	DWORD ERR;
 	Num=(LPSTR)malloc(20*sizeof(CHAR));
@@ -314,8 +315,8 @@ INT_PTR Loadf(HWND hDlg)
 		}else
 		{
 			LPDWORD NumBuff=(LPDWORD)malloc(sizeof(DWORD));
-			OutStr=(LPSTR)malloc(MAX_IN_STR*sizeof(CHAR));
-			MainStr=(LPSTR)malloc(MAX_IN_STR*sizeof(CHAR));
+			OutStr=(WCHAR*)malloc(MAX_IN_STR*sizeof(WCHAR));
+			MainStr=(WCHAR*)malloc(MAX_IN_STR*sizeof(WCHAR));
 			//=(LPSTR)malloc(MAX_IN_STR*sizeof(CHAR));
 			LPSTR Start;
 			WCHAR* TitleStr=(WCHAR*)malloc(MAX_IN_STR*sizeof(WCHAR));
