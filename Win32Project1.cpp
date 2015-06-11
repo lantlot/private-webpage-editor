@@ -25,6 +25,7 @@ INT_PTR Loadf(HWND hDlg);
 INT_PTR BuildHtm(LPSTR outStr,LPSTR titleStr,LPSTR imagePath,LPSTR mainStr);
 BOOL FileExist(LPSTR strPath)  ;
 int GBKToUTF8(char * lpGBKStr,char * lpUTF8Str,int nUTF8StrLen);
+void CharToWchar(const char *constCharString, TCHAR *outWchar) ;
 int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
                      _In_ LPTSTR    lpCmdLine,
@@ -270,9 +271,9 @@ INT_PTR savef(HWND hDlg)//文件保存模块
 				strcat_s(Inum,20,PathFindExtensionA(FileName)); 
 				strcat_s(Num,20,".htm");
 				CopyFileA(FileName,Inum, FALSE);
-				GBKToUTF8(MainStrGB,MainStrUTF,MAX_IN_STR);
-				GBKToUTF8(TitleStrGB,TitleStrUTF,MAX_IN_STR);
-				BuildHtm(InStr,TitleStrUTF,Inum,MainStrUTF);
+				//GBKToUTF8(MainStrGB,MainStrUTF,MAX_IN_STR);
+				//GBKToUTF8(TitleStrGB,TitleStrUTF,MAX_IN_STR);
+				BuildHtm(InStr,TitleStrGB,Inum,MainStrGB);
 				HANDLE FileHandle;
 				FileHandle=CreateFileA(Num,GENERIC_WRITE,0,NULL,CREATE_NEW,FILE_ATTRIBUTE_NORMAL,NULL);
 				DWORD dwWrites;
@@ -291,10 +292,9 @@ INT_PTR savef(HWND hDlg)//文件保存模块
 }
 INT_PTR Loadf(HWND hDlg)
 {
-	WCHAR *OutStr,*MainStr,*TitleStr;
-	LPSTR Num;
+	LPSTR Num,TempStr,TempTitle,OutStr,MainStr,Start,TitleStr;
 	int Count=0,C2=0;
-	DWORD ERR;
+	//DWORD ERR;
 	Num=(LPSTR)malloc(20*sizeof(CHAR));
 	HANDLE hFile=(HANDLE)malloc(sizeof(HANDLE));
 	if (GetDlgItemTextA(hDlg,IDC_Num,Num,4))
@@ -315,28 +315,43 @@ INT_PTR Loadf(HWND hDlg)
 		}else
 		{
 			LPDWORD NumBuff=(LPDWORD)malloc(sizeof(DWORD));
-			OutStr=(WCHAR*)malloc(MAX_IN_STR*sizeof(WCHAR));
-			MainStr=(WCHAR*)malloc(MAX_IN_STR*sizeof(WCHAR));
-			//=(LPSTR)malloc(MAX_IN_STR*sizeof(CHAR));
-			LPSTR Start;
-			WCHAR* TitleStr=(WCHAR*)malloc(MAX_IN_STR*sizeof(WCHAR));
+			OutStr=(LPSTR)malloc(MAX_IN_STR*sizeof(CHAR));
+			MainStr=(LPSTR)malloc(MAX_IN_STR*sizeof(CHAR));
+			TempStr=(LPSTR)malloc(MAX_IN_STR*sizeof(CHAR));
+			TempTitle=(LPSTR)malloc(MAX_IN_STR*sizeof(CHAR));
+			Start=(LPSTR)malloc(MAX_IN_STR*sizeof(CHAR));;
+			TitleStr=(LPSTR)malloc(MAX_IN_STR*sizeof(CHAR));
+			WCHAR *COUT=(WCHAR*)malloc(MAX_IN_STR*sizeof(WCHAR));
 			hFile=CreateFileA(Num,GENERIC_READ,0,NULL,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,NULL);
 			ReadFile(hFile,OutStr,MAX_IN_STR,NumBuff,NULL);
-			ERR=GetLastError();
+			//ERR=GetLastError();
 			Start=strstr(OutStr,"<TITLE>");
 			Count=7,C2=0;
 			while(Start[Count]!='<'){
-				TitleStr[C2]=Start[Count];
+				TempStr[C2]=Start[Count];
 				Count++,C2++;
 			}
-			TitleStr[C2]='\0';
-			TitleStr[C2+1]='\0';
+			TempStr[C2]='\0';
+			TempStr[C2+1]='\0';
+			//GBKToUTF8(TempStr,TitleStr,MAX_IN_STR);
+			CharToWchar(TempStr,COUT);
 			HWND hElg;
 			hElg=GetDlgItem(hDlg,IDC_TITLE);
-			SendMessage(hElg, WM_SETTEXT, NULL, (LPARAM)TitleStr);
+			SendMessage(hElg, WM_SETTEXT, NULL, (LPARAM)COUT);
+			Start=strstr(OutStr,"<FONT size=3>");
+			Count=13,C2=0;
+			while(Start[Count]!='<'){
+				TempStr[C2]=Start[Count];
+				Count++,C2++;
+			}
+			TempStr[C2]='\0';
+			TempStr[C2+1]='\0';
+			CharToWchar(TempStr,COUT);
+			hElg=GetDlgItem(hDlg,IDC_Main);
+			SendMessage(hElg, WM_SETTEXT, NULL, (LPARAM)COUT);
 			return 0;
 		}
-
+		
 
 
 	}else 
@@ -388,7 +403,7 @@ INT_PTR BuildHtm(LPSTR outStr,LPSTR titleStr,LPSTR imageNum,LPSTR mainStr)//编写
 	*outStr=0;
 	strcat_s(outStr,MAX_IN_STR,"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\"><HTML><HEAD><TITLE>");
 	strcat_s(outStr,MAX_IN_STR,titleStr);
-	strcat_s(outStr,MAX_IN_STR,"</TITLE><META content=\"text/html; charset=unicode\" http-equiv=Content-Type><META name=GENERATOR content=\"MSHTML 11.00.9600.16384\"></HEAD><BODY><P align=center><SPAN id=wiz_font_size_span_47009778 style=\"FONT-SIZE: 20pt\">&nbsp; ");
+	strcat_s(outStr,MAX_IN_STR,"</TITLE><META content=\"text/html; charset=gb2312\" http-equiv=Content-Type><META name=GENERATOR content=\"MSHTML 11.00.9600.16384\"></HEAD><BODY><P align=center><SPAN id=wiz_font_size_span_47009778 style=\"FONT-SIZE: 20pt\">&nbsp; ");
 	strcat_s(outStr,MAX_IN_STR,titleStr);
 	strcat_s(outStr,MAX_IN_STR,"</SPAN></P><P align=center><SPAN style=\"FONT-SIZE: 20pt\"><IMG border=0 hspace=0 alt=\"\" src=\"192.168.1.1\\");
 	strcat_s(outStr,MAX_IN_STR,imageNum);
@@ -409,3 +424,18 @@ BOOL FileExist(LPSTR strPath)
     FindClose(hFind);  
     return rValue;  
 }  
+void CharToWchar(const char *constCharString, TCHAR *outWchar) 
+{
+int   nLen = strlen(constCharString) + 1;   
+int   nwLen = MultiByteToWideChar(CP_ACP, 0, constCharString, nLen, NULL, 0);  
+    
+TCHAR   *wString;
+wString = new TCHAR[nwLen];
+
+
+MultiByteToWideChar(CP_ACP, 0, constCharString, nLen, wString,nwLen);
+wcscpy_s(outWchar,MAX_IN_STR,wString);//   wcscpy(outWchar,wString);
+
+
+delete[] wString;
+}
