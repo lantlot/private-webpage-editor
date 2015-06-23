@@ -267,9 +267,11 @@ INT_PTR savef(HWND hDlg)//文件保存模块
 				GetDlgItemTextA(hDlg,IDC_Paths,FileName,MAX_PATH);
 				GetDlgItemTextA(hDlg,IDC_Main,MainStrGB,MAX_IN_STR);
 				GetDlgItemTextA(hDlg,IDC_TITLE,TitleStrGB,MAX_IN_STR);
+				//strcpy_s(Inum,20,".\\");
 				strcpy_s(Inum,20,Num);
 				strcat_s(Inum,20,PathFindExtensionA(FileName)); 
 				strcat_s(Num,20,".htm");
+				DeleteFileA(Inum);
 				CopyFileA(FileName,Inum, FALSE);
 				//GBKToUTF8(MainStrGB,MainStrUTF,MAX_IN_STR);
 				//GBKToUTF8(TitleStrGB,TitleStrUTF,MAX_IN_STR);
@@ -349,6 +351,8 @@ INT_PTR Loadf(HWND hDlg)
 			CharToWchar(TempStr,COUT);
 			hElg=GetDlgItem(hDlg,IDC_Main);
 			SendMessage(hElg, WM_SETTEXT, NULL, (LPARAM)COUT);
+			LoadFlag=TRUE;
+			CloseHandle(hFile);
 			return 0;
 		}
 		
@@ -405,7 +409,7 @@ INT_PTR BuildHtm(LPSTR outStr,LPSTR titleStr,LPSTR imageNum,LPSTR mainStr)//编写
 	strcat_s(outStr,MAX_IN_STR,titleStr);
 	strcat_s(outStr,MAX_IN_STR,"</TITLE><META content=\"text/html; charset=gb2312\" http-equiv=Content-Type><META name=GENERATOR content=\"MSHTML 11.00.9600.16384\"></HEAD><BODY><P align=center><SPAN id=wiz_font_size_span_47009778 style=\"FONT-SIZE: 20pt\">&nbsp; ");
 	strcat_s(outStr,MAX_IN_STR,titleStr);
-	strcat_s(outStr,MAX_IN_STR,"</SPAN></P><P align=center><SPAN style=\"FONT-SIZE: 20pt\"><IMG border=0 hspace=0 alt=\"\" src=\"192.168.1.1\\");
+	strcat_s(outStr,MAX_IN_STR,"</SPAN></P><P align=center><SPAN style=\"FONT-SIZE: 20pt\"><IMG border=0 hspace=0 alt=\"\" src=\"10.1.190.200\\");
 	strcat_s(outStr,MAX_IN_STR,imageNum);
 	strcat_s(outStr,MAX_IN_STR,"\" align=baseline></SPAN></P><P align=left><SPAN style=\"FONT-SIZE: 20pt\"><FONT size=3>");
 	strcat_s(outStr,MAX_IN_STR,mainStr);
