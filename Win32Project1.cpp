@@ -19,6 +19,7 @@ BOOL				InitInstance(HINSTANCE, int);
 LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	Load(HWND, UINT, WPARAM, LPARAM);
+INT_PTR CALLBACK	ReadMe(HWND,UINT, WPARAM, LPARAM);
 INT_PTR openf(HWND hDlg,int Id);
 INT_PTR savef(HWND hDlg);
 INT_PTR Loadf(HWND hDlg);
@@ -154,6 +155,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 		case IDM_LOAD:
 			DialogBox(hInst, MAKEINTRESOURCE(IDD_LOAD), hWnd, Load);
+			break;
+		case ID_ReadMe:
+			DialogBox(hInst, MAKEINTRESOURCE(IDD_Edit), hWnd, ReadMe);
+			break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
 		}
@@ -172,6 +177,24 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
+INT_PTR CALLBACK ReadMe(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	UNREFERENCED_PARAMETER(lParam);
+	switch (message)
+	{
+	case WM_INITDIALOG:
+		return (INT_PTR)TRUE;
+
+	case WM_COMMAND:
+		if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
+		{
+			EndDialog(hDlg, LOWORD(wParam));
+			return (INT_PTR)TRUE;
+		}
+		break;
+	}
+	return (INT_PTR)FALSE;
+}
 // “关于”框的消息处理程序。
 INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -281,6 +304,14 @@ INT_PTR savef(HWND hDlg)//文件保存模块
 				DWORD dwWrites;
 				WriteFile(FileHandle,InStr,strlen(InStr),&dwWrites,NULL);
 				CloseHandle(FileHandle);
+				LoadFlag=FALSE;
+				ViewFlag=FALSE;
+				HWND hEdt = GetDlgItem(hDlg, IDC_Num);  
+				PostMessage(hEdt,EM_SETREADONLY,0,0);
+				SetDlgItemTextA(hDlg,IDC_Num,"");
+				SetDlgItemTextA(hDlg,IDC_Main,"");
+				SetDlgItemTextA(hDlg,IDC_Paths,"");
+				SetDlgItemTextA(hDlg,IDC_TITLE,"");
 				return 0;
 			}else 
 		{
@@ -302,13 +333,12 @@ INT_PTR Loadf(HWND hDlg)
 	if (GetDlgItemTextA(hDlg,IDC_Num,Num,4))
 	{
 		strcat_s(Num,20,".htm");
+		HWND hEdt = GetDlgItem(hDlg, IDC_Num);  
 		if(!FileExist(Num))
 		{
 			if((MessageBox(hDlg,TEXT("文件不存在，是否创建?"),TEXT("确认"),MB_YESNO|MB_ICONQUESTION))==IDYES)
 			{
-				LoadFlag=TRUE;
-				PostMessage(hDlg,EM_SETREADONLY,1,0);
-				
+				PostMessage(hEdt,EM_SETREADONLY,1,0);
 				return 0;
 			}else
 			{
@@ -353,6 +383,7 @@ INT_PTR Loadf(HWND hDlg)
 			SendMessage(hElg, WM_SETTEXT, NULL, (LPARAM)COUT);
 			LoadFlag=TRUE;
 			CloseHandle(hFile);
+			PostMessage(hEdt,EM_SETREADONLY,1,0);
 			return 0;
 		}
 		
